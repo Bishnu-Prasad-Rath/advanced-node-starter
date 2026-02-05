@@ -1,33 +1,30 @@
-# .travis.yml
 language: node_js
 node_js:
   - "18"
 
+# Services
 services:
   - mongodb
   - redis-server
 
+# Cache
 cache:
-  npm: true
   directories:
     - node_modules
     - client/node_modules
 
+# Environment
 env:
-  - NODE_ENV=test
-  - CI=true
-  - PORT=5000
+  global:
+    - NODE_ENV=test
+    - CI=true
+    - PORT=5000
 
+# Install
 install:
   - npm ci
   - npm run build
 
-before_script:
-  - npm start &
-  - sleep 15
-
+# Script
 script:
   - npm test
-
-after_script:
-  - pkill -f "node" || true
