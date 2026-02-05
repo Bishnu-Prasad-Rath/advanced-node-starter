@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "server": "nodemon index.js --ignore tests",
+    "server": "nodemon index.js --ignore tests --ignore client --ignore client/** --ignore client/build --ignore client/node_modules",
     "client": "npm run start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "NPM_CONFIG_PRODUCTION=false npm install --legacy-peer-deps --prefix client && npm run build --prefix client",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -19,15 +20,19 @@
     "concurrently": "3.5.0",
     "cookie-session": "2.0.0-beta.2",
     "express": "4.15.3",
-    "jest": "23.6.0",
     "migrate-mongoose": "3.2.2",
+    "mongodb": "^7.0.0",
     "mongoose": "5.10.11",
     "nodemon": "1.11.0",
     "passport": "0.3.2",
     "passport-google-oauth20": "2.0.0",
     "path-parser": "2.0.2",
-    "puppeteer": "1.3.0",
+    "puppeteer": "^24.31.0",
     "redis": "2.8.0",
     "uuid": "3.2.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.2.0"
   }
 }
