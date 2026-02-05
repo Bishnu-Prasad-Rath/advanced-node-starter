@@ -6,3 +6,6 @@ config/prod.js
 config/keys.js
 *.env
 .env*
+config/dev.js
+config/prod.js
+config/keys.js
