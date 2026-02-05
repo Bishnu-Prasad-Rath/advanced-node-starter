@@ -1,0 +1,7 @@
+module.exports = {
+  googleClientID: 'YOUR_GOOGLE_CLIENT_ID_HERE',
+  googleClientSecret: 'YOUR_GOOGLE_CLIENT_SECRET_HERE',
+  mongoURI: 'YOUR_MONGODB_URI_HERE',
+  redisUrl: 'redis://127.0.0.1:6379',
+  cookieKey: 'YOUR_COOKIE_KEY_HERE'
+};
