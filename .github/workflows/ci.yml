@@ -22,10 +22,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create CI keys file from example
-        run: cp config/keys.js.example config/keys.js
+      - name: Create config/keys.js for CI
+        run: |
+          echo "Files in config before copy:"
+          ls -la config
+          cp -f config/keys.js.example config/keys.js
+          echo "Files in config after copy:"
+          ls -la config
 
       - name: Run tests
         run: npm test
-      
-        
