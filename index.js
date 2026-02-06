@@ -1,3 +1,5 @@
+process.env.CI = process.env.CI || 'true';
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
