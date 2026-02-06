@@ -1,4 +1,3 @@
-
 require('../models/User');
 
 jest.setTimeout(40000);
@@ -7,8 +6,20 @@ const keys = require('../config/keys');
 
 mongoose.Promise = global.Promise;
 
-// Modern connection syntax (useMongoClient is deprecated)
-mongoose.connect(keys.mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+beforeAll(async () => {
+  // Skip DB connection on CI (GitHub Actions)
+  if (process.env.CI === 'true') {
+    return;
+  }
+
+  await mongoose.connect(keys.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+});
+
+afterAll(async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
 });

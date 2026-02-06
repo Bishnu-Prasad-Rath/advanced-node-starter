@@ -10,8 +10,9 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  // Fixed typo: 'adterEasch' → 'afterEach'
-  await page.close();
+  if (page && typeof page.close === 'function') {
+    await page.close();
+  }
 });
 
 describe("When logged in", () => {
