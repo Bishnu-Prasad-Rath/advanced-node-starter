@@ -16,7 +16,11 @@ if (!process.env.CI) {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
+} else {
+  console.log('CI mode: skipping MongoDB connection');
 }
+
+
 
 
 const app = express();
