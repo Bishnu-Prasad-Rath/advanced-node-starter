@@ -22,5 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create CI keys file from example
+        run: cp config/keys.js.example config/keys.js
+
       - name: Run tests
         run: npm test
