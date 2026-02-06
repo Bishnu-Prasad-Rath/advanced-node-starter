@@ -57,7 +57,7 @@ jobs:
           COOKIE_KEY: "dummy"
         run: |
           npm start > server.log 2>&1 &
-          sleep 5
+          sleep 10
           echo "===== SERVER LOG ====="
           cat server.log || true
 
