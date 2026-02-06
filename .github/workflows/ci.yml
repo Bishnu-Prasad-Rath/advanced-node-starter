@@ -47,13 +47,22 @@ jobs:
           cp -f config/keys.js.example config/keys.js
 
       - name: Start server
+        env:
+          PORT: 3000
+          CI: "true"
+          GOOGLE_CLIENT_ID: "dummy"
+          GOOGLE_CLIENT_SECRET: "dummy"
+          MONGO_URI: "mongodb://127.0.0.1:27017/test"
+          COOKIE_KEY: "dummy"
         run: |
-          nohup npm start &
+          npm start > server.log 2>&1 &
           sleep 5
+          echo "===== SERVER LOG ====="
+          cat server.log || true
 
-      - name: Wait for server to be ready
+      - name: Wait for server to be ready (max 60s)
         run: |
-          npx wait-on http://localhost:3000
+          npx wait-on --timeout 60000 http://localhost:3000
 
       - name: Run tests
         env:
