@@ -24,15 +24,20 @@ jobs:
 
       - name: Create config files for CI from examples
         run: |
-          echo "Before copy:"
-          ls -la config
-
           cp -f config/dev.js.example config/dev.js
           cp -f config/prod.js.example config/prod.js
           cp -f config/keys.js.example config/keys.js
 
-          echo "After copy:"
-          ls -la config
+      - name: Start server
+        run: |
+          nohup npm start &
+          sleep 5
+
+      - name: Wait for server to be ready
+        run: |
+          npx wait-on http://localhost:3000
 
       - name: Run tests
+        env:
+          CI: "true"
         run: npm test
