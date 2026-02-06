@@ -1,21 +1,23 @@
 // ------------------------------
 //  Redis + Mongoose Cache Layer
-//  FULL UPDATED VERSION (2025)
+//  CI-SAFE VERSION (2026)
 // ------------------------------
 
 const mongoose = require("mongoose");
 const util = require("util");
 
+const ENABLE_REDIS = process.env.ENABLE_REDIS === "true";
+
 let client = null;
-let exec = mongoose.Query.prototype.exec;
+const exec = mongoose.Query.prototype.exec;
 
 // ------------------------------------------
-// Setup Redis ONLY if not running in CI
+// Setup Redis ONLY if ENABLE_REDIS=true
 // ------------------------------------------
-if (!process.env.CI) {
+if (ENABLE_REDIS) {
   const redis = require("redis");
-
   const redisUrl = "redis://127.0.0.1:6379";
+
   client = redis.createClient(redisUrl);
 
   // Promisify 'get' because Redis v2 uses callbacks
@@ -25,9 +27,9 @@ if (!process.env.CI) {
     console.error("Redis error:", err);
   });
 
-  console.log("Redis connected");
+  console.log("Redis enabled (services/cache)");
 } else {
-  console.log("CI mode: skipping Redis connection");
+  console.log("Redis disabled (services/cache)");
 }
 
 // ------------------------------------------
@@ -43,7 +45,6 @@ mongoose.Query.prototype.cache = function (options = {}) {
 // Override exec() to plug into Redis
 // ------------------------------------------
 mongoose.Query.prototype.exec = async function () {
-
   // If caching NOT enabled or Redis disabled → normal DB query
   if (!this.useCache || !client) {
     return exec.apply(this, arguments);
