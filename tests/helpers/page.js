@@ -3,59 +3,60 @@ const sessionFactory = require('../factories/sessionFactory');
 const userFactory = require('../factories/userFactory');
 
 class CustomPage {
-  static async build() {
-   const browser = await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+static async build() {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
-    const page = await browser.newPage();
-    const customPage = new CustomPage(page, browser);
+  const page = await browser.newPage();
+  page.setDefaultTimeout(30000);
+  page.setDefaultNavigationTimeout(30000);
+  await page.setViewport({ width: 1280, height: 800 });
 
-    return new Proxy(customPage, {
-      get: function (target, property) { 
-        // Return customPage methods first
-        if (target[property]) {
-          return target[property];
+  const customPage = new CustomPage(page, browser);
+
+  return new Proxy(customPage, {
+    get: function (target, property) { 
+      if (target[property]) return target[property];
+      if (page[property]) {
+        if (typeof page[property] === 'function') {
+          return page[property].bind(page);
         }
-        
-        // Return page methods
-        if (page[property]) {
-          // Bind methods to maintain proper 'this' context
-          if (typeof page[property] === 'function') {
-            return page[property].bind(page);
-          }
-          return page[property];
+        return page[property];
+      }
+      if (browser[property]) {
+        if (typeof browser[property] === 'function') {
+          return browser[property].bind(browser);
         }
+        return browser[property];
+      }
+    },
+  });
+}
 
-        // Return browser methods
-        if (browser[property]) {
-          // Bind methods to maintain proper 'this' context
-          if (typeof browser[property] === 'function') {
-            return browser[property].bind(browser);
-          }
-          return browser[property];
-        }
-
-        return undefined;
-      },
-    });
-  }
 
   constructor(page, browser) {
     this.page = page;
     this.browser = browser; // Store browser reference
   }
 
- async login(){
-     const user = await userFactory();
+async login() {
+  const user = await userFactory();
   const { session, sig } = sessionFactory(user);
-  
+
   await this.page.setCookie({ name: 'session', value: session });
   await this.page.setCookie({ name: 'session.sig', value: sig });
-  await this.page.goto('http://localhost:3000/blogs');
-  await this.page.waitForSelector('a[href="/auth/logout"]');
- }
+
+  await this.page.goto('http://localhost:3000/blogs', {
+    waitUntil: 'networkidle2'
+  });
+
+  await this.page.waitForSelector('a[href="/auth/logout"]', {
+    timeout: 30000
+  });
+}
+
 
  async getContentsOf(selector){
   return this.page.$eval(selector, el => el.innerHTML);

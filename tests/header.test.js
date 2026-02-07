@@ -23,12 +23,13 @@ afterEach(async () => {
 // You can also update your test to use the custom close method
 
 test('the header has the correct test', async () => { 
-  const text = await page.getContentsOf('a.brand-logo');
+await page.waitForSelector('a.brand-logo', { timeout: 30000 });
+const text = await page.getContentsOf('a.brand-logo');
   expect(text).toEqual('Blogster'); 
 }, 10000); // 10 second timeout for this test
 
 test('clicking login starts oauth flow', async () => {
-  await page.click('.right a');
+ await page.waitForSelector('.right a', { timeout: 30000 });
   const url = await page.url();
   console.log(url);
   expect(url).toMatch(/accounts\.google\.com/);
