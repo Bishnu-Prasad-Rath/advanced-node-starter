@@ -1,88 +1,89 @@
-// Change this line - use 'PageHelper' or 'PageClass' or anything else
-if (process.env.CI) {
-  describe.skip('Blog integration tests (skipped in CI)', () => {});
-  return;
-}
-  const { log } = require("nodemon/lib/utils");
-const Page = require("./helpers/page"); // ← Use capital 'Page' for the class
+const Page = require("./helpers/page");
 
-let page; // Now this is fine - different name
+const isCI = !!process.env.CI;
+const maybeDescribe = isCI ? describe.skip : describe;
+const maybeTest = isCI ? test.skip : test;
 
-beforeEach(async () => {
-  page = await Page.build(); // Now using 'Page' (the class) to build
-  await page.goto("http://localhost:3000");
-});
+let page;
 
-afterEach(async () => {
-  if (page && typeof page.close === 'function') {
-    await page.close();
-  }
-});
+maybeDescribe("Blog tests", () => {
 
-describe("When logged in", () => {
   beforeEach(async () => {
-    await page.login();
-    await page.click("a.btn-floating");
+    page = await Page.build();
+    await page.goto("http://localhost:3000");
   });
 
-  test("can see blog creation form", async () => {
-
-    const label = await page.getContentsOf("form label");
-
-    expect(label).toEqual("Blog Title");
+  afterEach(async () => {
+    if (page && typeof page.close === 'function') {
+      await page.close();
+    }
   });
 
-  describe('And using valid inputs',()=>{
-
-    beforeEach(async()=>{
-      await page.type('.title input','My Title');
-      await page.type('.content input','My Content');
-      await page.click('form button');
-    })
-
-    test('submitting takes user to review screen',async()=>{
-     const text = await page.getContentsOf('h5');
-     expect(text).toEqual('Please confirm your entries');
-    })
-    test('submitting then saving adds blog to index page',async()=>{
-     await page.click('button.green');
-     await page.waitForSelector('.card');
-     const title = await page.getContentsOf('.card-title');
-     const content = await page.getContentsOf('p');
-     expect(title).toEqual('My Title');
-     expect(content).toEqual('My Content');
-    })  
-  })
-
-  describe("And using invalid inputs", () => {
+  maybeDescribe("When logged in", () => {
     beforeEach(async () => {
-      await page.click("form button");
+      await page.login();
+      await page.click("a.btn-floating");
     });
-    test('the form shows an error message', async () => {
-      const titleError = await page.getContentsOf('.title .red-text');
-      const contentError = await page.getContentsOf('.content .red-text');
-      
-      expect(titleError).toEqual('You must provide a value');
-      expect(contentError).toEqual('You must provide a value');
-  })
- })       
-});     
 
-describe('User is not logged in', () => {
-  const actions = [{ 
-     method: 'get',
-     path : '/api/blogs'
-  },
-{
-  method:'post',
-  path:'/api/blogs',
-  data:{ title: 'My Title', content: 'My Content' }
-}]
+    maybeTest("can see blog creation form", async () => {
+      const label = await page.getContentsOf("form label");
+      expect(label).toEqual("Blog Title");
+    });
 
-test('Blog related actions are prohibited', async()=>{
- const results = await page.execRequests(actions);
- for(let result of results){
-   expect(result).toEqual({ error: 'You must log in!' });
- }
-})
+    maybeDescribe('And using valid inputs', () => {
+      beforeEach(async () => {
+        await page.type('.title input', 'My Title');
+        await page.type('.content input', 'My Content');
+        await page.click('form button');
+      });
+
+      maybeTest('submitting takes user to review screen', async () => {
+        const text = await page.getContentsOf('h5');
+        expect(text).toEqual('Please confirm your entries');
+      });
+
+      maybeTest('submitting then saving adds blog to index page', async () => {
+        await page.click('button.green');
+        await page.waitForSelector('.card');
+        const title = await page.getContentsOf('.card-title');
+        const content = await page.getContentsOf('p');
+        expect(title).toEqual('My Title');
+        expect(content).toEqual('My Content');
+      });
+    });
+
+    maybeDescribe("And using invalid inputs", () => {
+      beforeEach(async () => {
+        await page.click("form button");
+      });
+
+      maybeTest('the form shows an error message', async () => {
+        const titleError = await page.getContentsOf('.title .red-text');
+        const contentError = await page.getContentsOf('.content .red-text');
+
+        expect(titleError).toEqual('You must provide a value');
+        expect(contentError).toEqual('You must provide a value');
+      });
+    });
+  });
+
+  maybeDescribe('User is not logged in', () => {
+    const actions = [{ 
+      method: 'get',
+      path : '/api/blogs'
+    },
+    {
+      method:'post',
+      path:'/api/blogs',
+      data:{ title: 'My Title', content: 'My Content' }
+    }];
+
+    maybeTest('Blog related actions are prohibited', async () => {
+      const results = await page.execRequests(actions);
+      for (let result of results) {
+        expect(result).toEqual({ error: 'You must log in!' });
+      }
+    });
+  });
+
 });
