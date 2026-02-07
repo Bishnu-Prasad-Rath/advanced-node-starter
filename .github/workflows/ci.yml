@@ -45,12 +45,13 @@ jobs:
           cp -f config/dev.js.example config/dev.js
           cp -f config/prod.js.example config/prod.js
           cp -f config/keys.js.example config/keys.js
-          
+
       - name: Build client (React)
         run: |
-          cd client
-          npm install
-          npm run build
+         cd client
+         npm install --legacy-peer-deps
+         npm run build
+
 
       - name: Start server
         env:
