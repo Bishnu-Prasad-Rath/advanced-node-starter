@@ -51,7 +51,13 @@ if (['production'].includes(process.env.NODE_ENV)) {
   });
 }
 
+app.get('/health', (req, res) => {
+  res.status(200).send('ok');
+});
+
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Listening on port`, PORT);
 });
+
